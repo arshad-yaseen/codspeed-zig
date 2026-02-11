@@ -76,8 +76,6 @@ try codspeed.setIntegration(handle, "zig", "0.1.0");
 try codspeed.bench(handle, "example/busy_work", busyWork);
 ```
 
-For dynamic names/versions in low-level mode, convert to null-terminated first (`dupeZ`, `allocPrintZ`, etc.).
-
 If needed, you can call methods manually:
 
 1. `startBenchmark(handle)`
