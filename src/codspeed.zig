@@ -1,3 +1,4 @@
+const builtin = @import("builtin");
 const std = @import("std");
 
 const InstrumentHooks = opaque {};
@@ -167,7 +168,12 @@ fn setIntegrationRaw(handle: Handle, name: [:0]const u8, version: [:0]const u8) 
 }
 
 fn currentPid() i32 {
-    return @intCast(std.os.linux.getpid());
+    return switch (builtin.os.tag) {
+        .windows => std.math.cast(i32, std.os.windows.GetCurrentProcessId()) orelse std.math.maxInt(i32),
+        .linux => std.os.linux.getpid(),
+        .plan9 => std.math.cast(i32, std.os.plan9.getpid()) orelse std.math.maxInt(i32),
+        else => std.math.cast(i32, std.c.getpid()) orelse std.math.maxInt(i32),
+    };
 }
 
 test "low-level init and deinit" {
