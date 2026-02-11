@@ -32,6 +32,22 @@ pub fn build(b: *std.Build) void {
 
     const test_step = b.step("test", "Run tests");
     test_step.dependOn(&b.addRunArtifact(tests).step);
+
+    const smoke_module = b.createModule(.{
+        .root_source_file = b.path("ci/profiler_smoke.zig"),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+    smoke_module.addImport("codspeed", codspeed);
+
+    const smoke_exe = b.addExecutable(.{
+        .name = "profiler-smoke",
+        .root_module = smoke_module,
+    });
+
+    const smoke_step = b.step("profile-smoke", "Compile profiler smoke executable");
+    smoke_step.dependOn(&smoke_exe.step);
 }
 
 fn createUpdateDepsStep(b: *std.Build) *std.Build.Step.Run {
@@ -51,6 +67,11 @@ fn createUpdateDepsStep(b: *std.Build) *std.Build.Step.Run {
             \\curl -fsSL "$BASE_URL/includes/valgrind.h" -o vendor/valgrind.h
             \\curl -fsSL "$BASE_URL/includes/compat.h" -o vendor/compat.h
             \\curl -fsSL "$BASE_URL/includes/zig.h" -o vendor/zig.h
+            \\# Avoid glibc preprocessing failures in native Linux builds.
+            \\if [ "$(head -n 1 vendor/zig.h)" = "#undef linux" ]; then
+            \\  tail -n +2 vendor/zig.h > vendor/zig.h.tmp
+            \\  mv vendor/zig.h.tmp vendor/zig.h
+            \\fi
             \\echo "$VERSION" > vendor/VERSION
             \\echo "✅ Updated to $VERSION"
             \\'
