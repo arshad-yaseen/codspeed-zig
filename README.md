@@ -30,7 +30,7 @@ const std = @import("std");
 const codspeed = @import("codspeed");
 
 pub fn main() !void {
-    var session = try codspeed.initSession(std.heap.c_allocator);
+    var session = try codspeed.initSession(std.heap.c_allocator); // or page_allocator
     defer session.deinit();
 
     // Optional metadata to identify your integration in CodSpeed.
@@ -46,7 +46,6 @@ fn busyWork() void {
     while (i < 1_000_000) : (i += 1) {
         sum +%= i;
     }
-    _ = sum;
 }
 
 fn parseIntWork() void {
