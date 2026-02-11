@@ -21,22 +21,9 @@ const codspeed_dep = b.dependency("codspeed_zig", .{
 exe.root_module.addImport("codspeed", codspeed_dep.module("codspeed"));
 ```
 
-## Benchmarking a Function
+## Benchmarking Functions
 
-### 1. Write the function you want to measure
-
-```zig
-fn busyWork() void {
-    var sum: u64 = 0;
-    var i: u64 = 0;
-    while (i < 1_000_000) : (i += 1) {
-        sum +%= i;
-    }
-    _ = sum;
-}
-```
-
-### 2. Run it through `CodSpeed.bench`
+Define your benchmark functions and call them from the executable entrypoint that runs your benchmarks:
 
 ```zig
 const std = @import("std");
@@ -50,6 +37,21 @@ pub fn main() !void {
     try codspeed.setIntegration("zig", "0.1.0");
 
     try codspeed.bench("example/busy_work", busyWork);
+    try codspeed.bench("example/parse_int_work", parseIntWork);
+}
+
+fn busyWork() void {
+    var sum: u64 = 0;
+    var i: u64 = 0;
+    while (i < 1_000_000) : (i += 1) {
+        sum +%= i;
+    }
+    _ = sum;
+}
+
+fn anotherBusyWork() void {
+    const input = "123456";
+    _ = std.fmt.parseInt(u64, input, 10) catch unreachable;
 }
 ```
 
