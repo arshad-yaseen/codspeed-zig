@@ -42,11 +42,11 @@ pub fn build(b: *std.Build) void {
     smoke_module.addImport("codspeed", codspeed);
 
     const smoke_exe = b.addExecutable(.{
-        .name = "profiler-smoke",
+        .name = "smoke",
         .root_module = smoke_module,
     });
 
-    const smoke_step = b.step("profile-smoke", "Compile profiler smoke executable");
+    const smoke_step = b.step("smoke", "Compile profiler smoke executable");
     smoke_step.dependOn(&smoke_exe.step);
 }
 
