@@ -4,16 +4,8 @@ const c = @cImport({
     @cInclude("core.h");
 });
 
-/// Opaque CodSpeed hook handle returned by `init`.
 pub const Handle = *c.InstrumentHooks;
 
-/// High-level CodSpeed session for ergonomic usage.
-///
-/// This API manages:
-/// - hook handle lifetime (`init`/`deinit`)
-/// - temporary null-terminated C strings for dynamic inputs
-///
-/// Use this when you want the best DX.
 pub const Session = struct {
     handle: Handle,
     allocator: std.mem.Allocator,
@@ -47,8 +39,6 @@ pub const Session = struct {
     }
 
     /// Reports the benchmark identifier executed by process `pid`.
-    ///
-    /// Accepts plain slices and performs temporary null-termination internally.
     pub fn setExecutedBenchmark(self: *const Session, pid: i32, uri: []const u8) !void {
         const c_uri = try self.allocator.dupeZ(u8, uri);
         defer self.allocator.free(c_uri);
@@ -56,8 +46,6 @@ pub const Session = struct {
     }
 
     /// Reports integration metadata to CodSpeed.
-    ///
-    /// Accepts plain slices and performs temporary null-termination internally.
     pub fn setIntegration(self: *const Session, name: []const u8, version: []const u8) !void {
         const c_name = try self.allocator.dupeZ(u8, name);
         defer self.allocator.free(c_name);
@@ -69,8 +57,6 @@ pub const Session = struct {
     }
 
     /// Convenience helper that executes `func` as a benchmark and reports it.
-    ///
-    /// Accepts plain slices and performs temporary null-termination internally.
     pub fn bench(self: *const Session, name: []const u8, comptime func: anytype) !void {
         try self.startBenchmark();
         defer self.stopBenchmark() catch {};
@@ -81,7 +67,7 @@ pub const Session = struct {
     }
 };
 
-/// Initializes a managed session for ergonomic usage.
+/// Initializes a managed session.
 pub fn initSession(allocator: std.mem.Allocator) !Session {
     return Session.init(allocator);
 }
@@ -121,24 +107,17 @@ pub fn stopBenchmark(handle: Handle) !void {
 }
 
 /// Low-level API: reports the benchmark identifier executed by process `pid`.
-///
-/// `uri` must be null-terminated.
-/// For dynamic strings, convert with `allocator.dupeZ` or `std.fmt.allocPrintZ`.
 pub fn setExecutedBenchmark(handle: Handle, pid: i32, uri: [:0]const u8) !void {
     try setExecutedBenchmarkRaw(handle, pid, uri);
 }
 
 /// Low-level API: reports integration metadata to CodSpeed.
-///
-/// `name` and `version` must be null-terminated.
-/// For dynamic strings, convert with `allocator.dupeZ` or `std.fmt.allocPrintZ`.
 pub fn setIntegration(handle: Handle, name: [:0]const u8, version: [:0]const u8) !void {
     try setIntegrationRaw(handle, name, version);
 }
 
 /// Low-level API: convenience helper that executes `func` as a benchmark.
 ///
-/// `name` must be null-terminated.
 /// `func` must be callable as `fn() void`.
 pub fn bench(handle: Handle, name: [:0]const u8, comptime func: anytype) !void {
     try startBenchmarkRaw(handle);
@@ -237,7 +216,7 @@ test "session init and deinit" {
     defer session.deinit();
 }
 
-test "session setIntegration and bench with slice inputs" {
+test "session setIntegration and bench" {
     var session = try initSession(std.testing.allocator);
     defer session.deinit();
 
