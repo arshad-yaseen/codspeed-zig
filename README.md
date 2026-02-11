@@ -88,7 +88,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: mlugg/setup-zig@v2
         with:
-          version: 0.16.0-dev.2490+fce7878a9
+          version: master
       - name: Run benchmarks with CodSpeed
         uses: CodSpeedHQ/action@v4
         with:
@@ -97,6 +97,7 @@ jobs:
 ```
 
 `zig build test` is only an example command.  
+
 It produces benchmark results only for code paths that call:
 
 - `CodSpeed.bench(...)`, or
@@ -129,4 +130,3 @@ with:
 - CodSpeed GitHub Action docs: https://docs.codspeed.io/ci-cd/github-action
 - CodSpeed CPU simulation mode: https://docs.codspeed.io/instruments/cpu-simulation
 - CodSpeed action repository: https://github.com/CodSpeedHQ/action
-- Zig build system: https://ziglang.org/learn/build-system/
