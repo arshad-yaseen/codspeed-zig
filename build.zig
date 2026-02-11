@@ -34,7 +34,7 @@ pub fn build(b: *std.Build) void {
     test_step.dependOn(&b.addRunArtifact(tests).step);
 
     const smoke_module = b.createModule(.{
-        .root_source_file = b.path("ci/profiler_smoke.zig"),
+        .root_source_file = b.path("ci/smoke.zig"),
         .target = target,
         .optimize = optimize,
         .link_libc = true,
@@ -67,11 +67,6 @@ fn createUpdateDepsStep(b: *std.Build) *std.Build.Step.Run {
             \\curl -fsSL "$BASE_URL/includes/valgrind.h" -o vendor/valgrind.h
             \\curl -fsSL "$BASE_URL/includes/compat.h" -o vendor/compat.h
             \\curl -fsSL "$BASE_URL/includes/zig.h" -o vendor/zig.h
-            \\# Avoid glibc preprocessing failures in native Linux builds.
-            \\if [ "$(head -n 1 vendor/zig.h)" = "#undef linux" ]; then
-            \\  tail -n +2 vendor/zig.h > vendor/zig.h.tmp
-            \\  mv vendor/zig.h.tmp vendor/zig.h
-            \\fi
             \\echo "$VERSION" > vendor/VERSION
             \\echo "✅ Updated to $VERSION"
             \\'

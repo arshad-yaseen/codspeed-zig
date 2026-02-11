@@ -28,7 +28,7 @@ jobs:
       - name: Run tests
         run: zig build test
 
-  profile-smoke-linux:
+  smoke-linux:
     name: profile smoke (linux)
     runs-on: ubuntu-latest
 
@@ -39,5 +39,5 @@ jobs:
         with:
           version: master
 
-      - name: Build profiler smoke binary (ReleaseFast)
-        run: zig build profile-smoke --release=fast
+      - name: Build smoke binary (ReleaseFast)
+        run: zig build smoke --release=fast

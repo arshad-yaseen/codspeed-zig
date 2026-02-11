@@ -1,10 +1,15 @@
 const std = @import("std");
 
-const c = @cImport({
-    @cInclude("core.h");
-});
+const InstrumentHooks = opaque {};
+pub const Handle = *InstrumentHooks;
 
-pub const Handle = *c.InstrumentHooks;
+extern fn instrument_hooks_init() ?Handle;
+extern fn instrument_hooks_deinit(handle: Handle) void;
+extern fn instrument_hooks_is_instrumented(handle: Handle) bool;
+extern fn instrument_hooks_start_benchmark(handle: Handle) u8;
+extern fn instrument_hooks_stop_benchmark(handle: Handle) u8;
+extern fn instrument_hooks_set_executed_benchmark(handle: Handle, pid: i32, uri: [*:0]const u8) u8;
+extern fn instrument_hooks_set_integration(handle: Handle, name: [*:0]const u8, version: [*:0]const u8) u8;
 
 pub const Session = struct {
     handle: Handle,
@@ -129,35 +134,35 @@ pub fn bench(handle: Handle, name: [:0]const u8, comptime func: anytype) !void {
 }
 
 fn initRaw() !Handle {
-    const handle = c.instrument_hooks_init();
+    const handle = instrument_hooks_init();
     return handle orelse error.InitFailed;
 }
 
 fn deinitRaw(handle: Handle) void {
-    c.instrument_hooks_deinit(handle);
+    instrument_hooks_deinit(handle);
 }
 
 fn isInstrumentedRaw(handle: Handle) bool {
-    return c.instrument_hooks_is_instrumented(handle);
+    return instrument_hooks_is_instrumented(handle);
 }
 
 fn startBenchmarkRaw(handle: Handle) !void {
-    const result = c.instrument_hooks_start_benchmark(handle);
+    const result = instrument_hooks_start_benchmark(handle);
     if (result != 0) return error.StartFailed;
 }
 
 fn stopBenchmarkRaw(handle: Handle) !void {
-    const result = c.instrument_hooks_stop_benchmark(handle);
+    const result = instrument_hooks_stop_benchmark(handle);
     if (result != 0) return error.StopFailed;
 }
 
 fn setExecutedBenchmarkRaw(handle: Handle, pid: i32, uri: [:0]const u8) !void {
-    const result = c.instrument_hooks_set_executed_benchmark(handle, pid, uri.ptr);
+    const result = instrument_hooks_set_executed_benchmark(handle, pid, uri.ptr);
     if (result != 0) return error.SetBenchmarkFailed;
 }
 
 fn setIntegrationRaw(handle: Handle, name: [:0]const u8, version: [:0]const u8) !void {
-    const result = c.instrument_hooks_set_integration(handle, name.ptr, version.ptr);
+    const result = instrument_hooks_set_integration(handle, name.ptr, version.ptr);
     if (result != 0) return error.SetIntegrationFailed;
 }
 

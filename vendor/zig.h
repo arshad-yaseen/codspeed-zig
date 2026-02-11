@@ -1,3 +1,5 @@
+#undef linux
+
 #include <stdarg.h>
 #include <stddef.h>
 
