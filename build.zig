@@ -50,6 +50,7 @@ fn createUpdateDepsStep(b: *std.Build) *std.Build.Step.Run {
             \\curl -fsSL "$BASE_URL/includes/callgrind.h" -o vendor/callgrind.h
             \\curl -fsSL "$BASE_URL/includes/valgrind.h" -o vendor/valgrind.h
             \\curl -fsSL "$BASE_URL/includes/compat.h" -o vendor/compat.h
+            \\curl -fsSL "$BASE_URL/includes/compat.h" -o vendor/zig.h
             \\echo "$VERSION" > vendor/VERSION
             \\echo "✅ Updated to $VERSION"
             \\'
