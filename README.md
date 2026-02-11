@@ -23,21 +23,21 @@ exe.root_module.addImport("codspeed", codspeed_dep.module("codspeed"));
 
 ## Benchmarking Functions
 
-Define your benchmark functions and call them from the executable entrypoint that runs your benchmarks:
+### Recommended (high-level API)
 
 ```zig
 const std = @import("std");
-const CodSpeed = @import("codspeed").CodSpeed;
+const codspeed = @import("codspeed");
 
 pub fn main() !void {
-    var codspeed = try CodSpeed.init(std.heap.c_allocator);
-    defer codspeed.deinit();
+    var session = try codspeed.initSession(std.heap.c_allocator);
+    defer session.deinit();
 
     // Optional metadata to identify your integration in CodSpeed.
-    try codspeed.setIntegration("zig", "0.1.0");
+    try session.setIntegration("zig", "0.1.0");
 
-    try codspeed.bench("example/busy_work", busyWork);
-    try codspeed.bench("example/parse_int_work", parseIntWork);
+    try session.bench("example/busy_work", busyWork);
+    try session.bench("example/parse_int_work", parseIntWork);
 }
 
 fn busyWork() void {
@@ -49,20 +49,41 @@ fn busyWork() void {
     _ = sum;
 }
 
-fn anotherBusyWork() void {
+fn parseIntWork() void {
     const input = "123456";
     _ = std.fmt.parseInt(u64, input, 10) catch unreachable;
 }
 ```
 
-`bench()` does this sequence for you:
+`session.bench()` does this sequence for you:
 
-1. `startBenchmark()`
+1. `startBenchmark(handle)`
 2. run your function
-3. `stopBenchmark()`
-4. `setExecutedBenchmark(current_pid, benchmark_id)`
+3. `stopBenchmark(handle)`
+4. `setExecutedBenchmark(handle, current_pid, benchmark_id)`
 
-If needed, you can call these methods manually for custom control.
+### Low-level explicit API
+
+Use this when you want full control and zero hidden allocations.
+
+```zig
+const codspeed = @import("codspeed");
+
+const handle = try codspeed.init();
+defer codspeed.deinit(handle);
+
+try codspeed.setIntegration(handle, "zig", "0.1.0"); // sentinel-terminated input
+try codspeed.bench(handle, "example/busy_work", busyWork); // sentinel-terminated input
+```
+
+For dynamic names/versions in low-level mode, convert to null-terminated first (`dupeZ`, `allocPrintZ`, etc.).
+
+If needed, you can call methods manually:
+
+1. `startBenchmark(handle)`
+2. run your function
+3. `stopBenchmark(handle)`
+4. `setExecutedBenchmark(handle, current_pid, benchmark_id)`
 
 ## Integration with CI (GitHub Actions)
 
@@ -102,8 +123,8 @@ jobs:
 
 It produces benchmark results only for code paths that call:
 
-- `CodSpeed.bench(...)`, or
-- the manual sequence `startBenchmark()` -> `stopBenchmark()` -> `setExecutedBenchmark(...)`.
+- `session.bench(...)` or `codspeed.bench(handle, ...)`, or
+- the manual sequence `startBenchmark(handle)` -> `stopBenchmark(handle)` -> `setExecutedBenchmark(handle, ...)`.
 
 So if your test suite has regular tests plus a few benchmark-marked tests, only those benchmark-marked tests are reported to CodSpeed.
 
