@@ -129,23 +129,6 @@ So if your test suite has regular tests plus a few benchmark-marked tests, only 
 
 If you prefer separation, create a dedicated benchmark entrypoint/step (for example `zig build bench`) and use that in `run:` instead.
 
-### Token-based alternative
-
-If you prefer static token auth, add:
-
-```yaml
-with:
-  mode: simulation
-  run: zig build test
-  token: ${{ secrets.CODSPEED_TOKEN }}
-```
-
-### Important notes
-
-- Use `mode: simulation` for current CodSpeed CPU simulation mode.
-- Public repositories can use tokenless auth; private repositories need token or OIDC.
-- Keep benchmark IDs stable over time so CodSpeed can compare performance across commits and pull requests.
-
 ## References
 
 - CodSpeed docs: https://docs.codspeed.io
