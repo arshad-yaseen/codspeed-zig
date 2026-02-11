@@ -72,8 +72,8 @@ const codspeed = @import("codspeed");
 const handle = try codspeed.init();
 defer codspeed.deinit(handle);
 
-try codspeed.setIntegration(handle, "zig", "0.1.0"); // sentinel-terminated input
-try codspeed.bench(handle, "example/busy_work", busyWork); // sentinel-terminated input
+try codspeed.setIntegration(handle, "zig", "0.1.0");
+try codspeed.bench(handle, "example/busy_work", busyWork);
 ```
 
 For dynamic names/versions in low-level mode, convert to null-terminated first (`dupeZ`, `allocPrintZ`, etc.).
