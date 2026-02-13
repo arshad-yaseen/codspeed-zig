@@ -54,6 +54,14 @@ fn parseIntWork() void {
 }
 ```
 
+You can check whether CodSpeed instrumentation is active:
+
+```zig
+if (session.isInstrumented()) {
+    // Running under CodSpeed instrumentation.
+}
+```
+
 `session.bench()` does this sequence for you:
 
 1. `startBenchmark(handle)`
@@ -73,6 +81,14 @@ defer codspeed.deinit(handle);
 
 try codspeed.setIntegration(handle, "zig", "0.1.0");
 try codspeed.bench(handle, "example/busy_work", busyWork);
+```
+
+To detect instrumentation in explicit mode:
+
+```zig
+if (codspeed.isInstrumented(handle)) {
+    // Running under CodSpeed instrumentation.
+}
 ```
 
 For dynamic names/versions in low-level mode, convert to null-terminated first (`dupeZ`, `allocPrintZ`, etc.).
