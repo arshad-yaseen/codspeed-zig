@@ -23,7 +23,7 @@ exe.root_module.addImport("codspeed", codspeed_dep.module("codspeed"));
 
 ## Benchmarking Functions
 
-### Recommended (high-level API)
+### API (Recommended)
 
 ```zig
 const std = @import("std");
@@ -61,7 +61,7 @@ fn parseIntWork() void {
 3. `stopBenchmark(handle)`
 4. `setExecutedBenchmark(handle, current_pid, benchmark_id)`
 
-### Low-level explicit API
+### Explicit API
 
 Use this when you want full control and zero hidden allocations.
 
