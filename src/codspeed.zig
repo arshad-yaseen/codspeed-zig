@@ -78,26 +78,24 @@ pub fn initSession(allocator: std.mem.Allocator) !Session {
     return Session.init(allocator);
 }
 
-/// Low-level API: initializes the CodSpeed hook runtime and returns a handle.
+/// Initializes the CodSpeed hook runtime and returns a handle.
 ///
 /// Returns `error.InitFailed` when the underlying hooks fail to initialize.
 pub fn init() !Handle {
     return initRaw();
 }
 
-/// Low-level API: releases resources associated with `handle`.
-///
 /// Call once for each successful `init`.
 pub fn deinit(handle: Handle) void {
     deinitRaw(handle);
 }
 
-/// Low-level API: returns whether benchmark instrumentation is currently active.
+/// Returns whether benchmark instrumentation is currently active.
 pub fn isInstrumented(handle: Handle) bool {
     return isInstrumentedRaw(handle);
 }
 
-/// Low-level API: marks the start of a benchmark sample.
+/// Marks the start of a benchmark sample.
 ///
 /// Pair every successful call with `stopBenchmark`.
 /// Returns `error.StartFailed` if the hook backend reports a failure.
@@ -105,24 +103,24 @@ pub fn startBenchmark(handle: Handle) !void {
     try startBenchmarkRaw(handle);
 }
 
-/// Low-level API: marks the end of a benchmark sample.
+/// Marks the end of a benchmark sample.
 ///
 /// Returns `error.StopFailed` if the hook backend reports a failure.
 pub fn stopBenchmark(handle: Handle) !void {
     try stopBenchmarkRaw(handle);
 }
 
-/// Low-level API: reports the benchmark identifier executed by process `pid`.
+/// Reports the benchmark identifier executed by process `pid`.
 pub fn setExecutedBenchmark(handle: Handle, pid: i32, uri: [:0]const u8) !void {
     try setExecutedBenchmarkRaw(handle, pid, uri);
 }
 
-/// Low-level API: reports integration metadata to CodSpeed.
+/// Reports integration metadata to CodSpeed.
 pub fn setIntegration(handle: Handle, name: [:0]const u8, version: [:0]const u8) !void {
     try setIntegrationRaw(handle, name, version);
 }
 
-/// Low-level API: convenience helper that executes `func` as a benchmark.
+/// Convenience helper that executes `func` as a benchmark.
 ///
 /// `func` must be callable as `fn() void`.
 pub fn bench(handle: Handle, name: [:0]const u8, comptime func: anytype) !void {
@@ -176,12 +174,12 @@ fn currentPid() i32 {
     };
 }
 
-test "low-level init and deinit" {
+test "explicit init and deinit" {
     const handle = try init();
     defer deinit(handle);
 }
 
-test "low-level isInstrumented" {
+test "explicit isInstrumented" {
     const handle = try init();
     defer deinit(handle);
 
@@ -189,7 +187,7 @@ test "low-level isInstrumented" {
     try std.testing.expectEqual(@TypeOf(instrumented), bool);
 }
 
-test "low-level start and stop benchmark" {
+test "explicit start and stop benchmark" {
     const handle = try init();
     defer deinit(handle);
 
@@ -197,21 +195,21 @@ test "low-level start and stop benchmark" {
     try stopBenchmark(handle);
 }
 
-test "low-level setExecutedBenchmark" {
+test "explicit setExecutedBenchmark" {
     const handle = try init();
     defer deinit(handle);
 
     try setExecutedBenchmark(handle, 1234, "test_benchmark");
 }
 
-test "low-level setIntegration" {
+test "explicit setIntegration" {
     const handle = try init();
     defer deinit(handle);
 
     try setIntegration(handle, "zig-integration", "1.0.0");
 }
 
-test "low-level bench convenience function" {
+test "explicit bench convenience function" {
     const handle = try init();
     defer deinit(handle);
 
